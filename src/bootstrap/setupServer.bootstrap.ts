@@ -2,6 +2,12 @@
 import { Application, json, urlencoded, Request, Response, NextFunction } from 'express';
 import http from 'http';
 import Logger from 'bunyan';
+import hpp from 'hpp';
+// para seguridad de ataques a las rutas xss
+import helmet from 'helmet';
+// para seguridad al server cuando la data navega por internet
+import cors from 'cors';
+// "cors" para comunicacion de dominios
 import { config } from '@configs/configEnv';
 import { logger } from '@configs/configLogs';
 
@@ -19,7 +25,24 @@ export class TheodoraDocumentManagerServer {
 
   // se crea un metodo publico para que se ejecute cuando sea invocado start
   public start(): void {
+    // al arrancar seran ejecutados estos metodos privados que manejan los middleware
+    // aqui se aplica el patron chains of responsability
+    this.securityMiddleware(this.app);
     this.startServer(this.app);
+  }
+
+  // metodo privado para los middlewares de seguridad
+  private securityMiddleware(app: Application): void {
+    app.use(hpp()); //middleware para proteger las rutas
+    app.use(helmet()); //middleware para proteger la info cuando va desde y hacia el server
+    app.use(
+      cors({
+        origin: config.CLIENT_URL, // se coloca la direccion URL de origen del cliente, o * si se quiere dejar abierta
+        credentials: true, // config obligatoria,  para producción para credentials en ambientes cloud
+        optionsSuccessStatus: 200, //codigo de respuesta de solicitud http
+        methods: ['GET', 'POST', 'PUT', 'DELETE'] // metodos explicitos que se van a utilizar
+      })
+    );
   }
 
   // metodo de arranque asincrono del servidor de node
