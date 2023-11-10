@@ -1,11 +1,14 @@
 import express, { Express } from 'express';
 import { TheodoraDocumentManagerServer } from '@bootstrap/setupServer.bootstrap';
+import databaseConnection from '@bootstrap/setupDatabase.bootstrap';
 import { config } from '@configs/configEnv';
 
 class Application {
   public initialize(): void {
     // llamamos el metodo privado para que cuando se ejecute "initialize" este sea ejecutado
     this.loadConfig();
+    // llamamos la funcion de arranque del db
+    databaseConnection();
 
     const app: Express = express(); //aqui se le otorga a "app" los metodos de express
 
