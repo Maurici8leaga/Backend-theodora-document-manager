@@ -28,6 +28,7 @@
       "@bootstrap/*": ["src/bootstrap/*"], // los nombres van a depender de cada carpeta no son estrictos
       "@configs/*": ["src/configs/*"], //debe ir obligatorio el /* ya que especifica que todo que venga despues usara ese alias
       "@interfaces/*": ["src/interfaces/*"],
+      "@archive/*": ["src/features/archive/*"],
       "@decorators/*": ["src/shared/globals/decorators/*"],
       "@helpers/*": ["src/shared/globals/helpers/*"],
       "@services/*": ["src/shared/globals/services/*"],
