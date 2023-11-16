@@ -9,7 +9,7 @@ export abstract class CustomError extends Error {
   // la clase Error es una clase del lenguaje para manejar los Errores
   // se crean los parametros abstractos los cuales seran obligatorios colocar en las otras clases
 
-  abstract statuscode: number;
+  abstract statusCode: number;
   abstract status: string;
 
   constructor(message: string) {
@@ -23,7 +23,7 @@ export abstract class CustomError extends Error {
     return {
       message: this.message,
       status: this.status,
-      statusCode: this.statuscode
+      statusCode: this.statusCode
     };
   }
 }
