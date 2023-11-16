@@ -21,6 +21,7 @@ class Application {
   // este es un metodo privado para que ejecute metodos al iniciar la app
   private loadConfig(): void {
     config.validateConfigEnv(); //metodo para verificacion de la variables de entorno
+    config.cloudinaryConfig(); //metodo para el levantamiento de credenciales de cloudinary
   }
 }
 
