@@ -15,6 +15,7 @@ class Config {
   public CLOUD_NAME: string | undefined;
   public CLOUD_API_KEY: string | undefined;
   public CLOUD_API_SECRET: string | undefined;
+  public CLOUD_DOMAIN: string | undefined;
 
   // inicializando las variables
   constructor() {
@@ -26,6 +27,7 @@ class Config {
     this.CLOUD_NAME = process.env.CLOUD_NAME;
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
     this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET;
+    this.CLOUD_DOMAIN = process.env.CLOUD_DOMAIN;
   }
 
   // se crea un metodo publico para validar que estas variables de entorno no esten vacias

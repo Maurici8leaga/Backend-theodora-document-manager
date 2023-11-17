@@ -6,9 +6,10 @@ import { Generators } from '@helpers/generators/generators';
 export abstract class ArchiveUtility {
   protected archiveData(data: IArchiveData): IArchiveDocument {
     // "IArchiveData" ES EL CONTRATO que debe cumplir cuando se cree un documento
-    const { title, document, fileType } = data;
+    const { _id, title, document, fileType } = data;
 
     return {
+      _id,
       title: Generators.firstLetterCapitalized(title),
       document,
       fileType,
