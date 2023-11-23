@@ -10,7 +10,7 @@ import { JoiRequestValidationError } from '@helpers/errors/joiValidateError';
 type TJoiDecorator = (target: unknown, key: string, descriptor: PropertyDescriptor) => void;
 
 // creamos una funcion para validacion de un schema de joi
-export function joiValidation(schema: ObjectSchema): TJoiDecorator {
+export function joiValidationBody(schema: ObjectSchema): TJoiDecorator {
   // se pasa los parametros que retornara esta funcion
   return (_target: unknown, _key: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
@@ -38,5 +38,29 @@ export function joiValidation(schema: ObjectSchema): TJoiDecorator {
     };
 
     return descriptor; //si todo cumple bien "descriptor" enviara todos los parametros con sus valores
+  };
+}
+
+// configuracion para validar schema del req.file
+export function joiValidationFile(schema: ObjectSchema): TJoiDecorator {
+  return (_target: unknown, _key: string, descriptor: PropertyDescriptor) => {
+    const originalMethod = descriptor.value;
+
+    descriptor.value = async function (...args: [Request]) {
+      const req: Request = args[0];
+
+      const fileValidation = await Promise.resolve(schema.validate(req.file));
+      // a diferencia del otro aqui solo se va a observar lo que este dentro del req.file cumpla con el schema pasado
+
+      const fileError = fileValidation.error;
+
+      if (fileError?.details) {
+        throw new JoiRequestValidationError(fileError.details[0].message);
+      }
+
+      return originalMethod.apply(this, args);
+    };
+
+    return descriptor;
   };
 }

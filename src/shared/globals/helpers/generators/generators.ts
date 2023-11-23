@@ -11,4 +11,9 @@ export class Generators {
       .map((value: string) => `${value.charAt(0).toUpperCase()}${value.slice(1).toLowerCase()}`)
       .join(' ');
   }
+
+  // metodo paraa convertir un buffer en base64
+  static convertToBase64(buffer: Buffer): string {
+    return buffer.toString('base64');
+  }
 }

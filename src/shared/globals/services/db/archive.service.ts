@@ -4,9 +4,13 @@ import { IArchiveDocument } from '@archive/interfaces/archiveDocument.interface'
 //aqui se implementa principio SOLID open / close y single  responsability, ya que las funcionales de esta clase pueden expanderse en variedad
 class ArchiveService {
   // funcion asincrona para crear un video, es asincrona ya que los metodo de mongoose son asincronos
-  public async createFile(data: IArchiveDocument): Promise<void> {
-    await ArchiveSchema.create(data);
-    // el metodo "create" es de mongoose,  el permite crear un documento en la DB
+  public async createFile(data: IArchiveDocument): Promise<IArchiveDocument> {
+    const createFile: IArchiveDocument = await ArchiveSchema.create(data); // el metodo "create" es de mongoose,  el permite crear un documento en la DB
+
+    // OJO se coloca el type aca y se retorna un promis ede tipo IArchiveDocument porque a la hora de usar la funcion si no se coloca esto
+    // devolvera undefined y no se quiere eso
+
+    return createFile;
   }
 
   public async getFileById(fileId: string): Promise<IArchiveDocument> {

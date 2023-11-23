@@ -1,8 +1,8 @@
 // los controladores son donde va la logica de negocios
 import { ObjectId } from 'mongodb';
 import { Request, Response } from 'express';
-import { joiValidation } from '@decorators/joiValidation.decorators';
-import { archiveSchema } from '@archive/scheme/archive';
+import { joiValidationBody, joiValidationFile } from '@decorators/joiValidation.decorators';
+import { archiveBodySchema, archiveFileSchema } from '@archive/scheme/archive';
 import { IArchiveDocument } from '@archive/interfaces/archiveDocument.interface';
 import { archiveService } from '@services/db/archive.service';
 import { BadRequestError } from '@helpers/errors/badRequestError';
@@ -10,30 +10,47 @@ import { UploadApiResponse } from 'cloudinary';
 import { uploads } from '@helpers/cloudinary/cloudinaryUploads';
 import { ArchiveUtility } from './utilities/archive.utility';
 import HTTP_STATUS from 'http-status-codes';
+import { Generators } from '@helpers/generators/generators';
 import { config } from '@configs/configEnv';
 
 export class Archive extends ArchiveUtility {
   // asi se usa el decorador de joi
-  @joiValidation(archiveSchema) // joiValidation es para validar los parametros del request
+  @joiValidationBody(archiveBodySchema) // joiValidation es para validar los parametros del request en el body
+  @joiValidationFile(archiveFileSchema) // joiValidation es para validar los parametros del request en el file
   public async createFile(req: Request, res: Response): Promise<void> {
-    const { title, document, fileType } = req.body;
+    const { title } = req.body;
 
-    const fileID: ObjectId = new ObjectId();
-    const fileObjectID: ObjectId = new ObjectId(); //el file debe llevar un id unico el cual sera el nombre que llevara en cloudinary
+    if (!req.file) {
+      // debe ir un validador de req.file antes de ser usado ya que puede ser undefined
+      throw new BadRequestError('File upload: Error ocurred. Try again.');
+    }
+
+    const { originalname, buffer, mimetype } = req.file;
+    // OJO en el req.body solo llega "title"  y el "documento" llega por req.file, por eso se hace esto
+
+    const fileBase64 = Generators.convertToBase64(buffer);
+    // se debe convertir buffer que viene siendo el file encryptado en base64 ya que se requiere para poder enviarlo en la ruta
+    // a cloudinary
 
     // upload file to cloudinary
-    const result: UploadApiResponse = (await uploads(document, `${fileObjectID}`)) as UploadApiResponse;
+    const cloduinaryObj: UploadApiResponse = (await uploads(
+      `data:${mimetype};base64,${fileBase64}`,
+      `${originalname}` // para archivos como txt,pdf, etc se debe pasar el nombre original con su extension porque asi lo pide cloudinary
+      // OJO IMPORTANTE PARA SUBIR FILES COMO TXT,PDF etc. DEBE IR ESTA RUTA "data:mimeType;base64,[base64...]" YA QUE SIN ESTO
+      // EL ARCHIVO NO SE VA A PODER SUBIR CORRECTAMENTE, PASANDO SOLO EL BASE64 NO LO VA A PODER GUARDAR
+    )) as UploadApiResponse;
     // se crea una variable de tipo "UploadApiResponse" el cual es una interfaz de cloudinary
     // se usa await ya que "uploads" devuelve un promise, esta funcion se le pasa 2 parametros,
     // 1ro importante es el file que sera el archivo, 2do es un id ya que cada imagen debe tener un id identificador
 
-    if (!result?.public_id) {
-      // de no haber un "userObjectId" mostrara un error
+    if (!cloduinaryObj?.public_id) {
+      // METODO DE VERIFICIACION IMPORTANTE de no haber un "userObjectId" mostrara un error, se coloca esto porque de ser cloduinaryObj undefined dara errorr
+      // y esto soluciona dicha condicion
       throw new BadRequestError('File upload: Error ocurred. Try again.');
     }
 
-    // file url in cloudinary
-    const cloudinaryDocument = `${config.CLOUD_DOMAIN}/${config.CLOUD_NAME}/raw/upload/v${result.version}/${fileObjectID}`;
+    // se crea ID para el file
+    const fileID: ObjectId = new ObjectId();
 
     // la data con la estructura del archivo
     const fileData: IArchiveDocument = Archive.prototype.archiveData({
@@ -43,12 +60,13 @@ export class Archive extends ArchiveUtility {
 
       _id: fileID,
       title,
-      document: cloudinaryDocument,
-      fileType
+      document: cloduinaryObj.url,
+      fileType: mimetype
     });
 
     // request a la db para crear el archivo
     const fileCreated = (await archiveService.createFile(fileData)) as unknown as IArchiveDocument;
+    //  ojo se tipea tanto en entrada como en salidas de datos!!!
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'File created succesfully', file: fileCreated });
     //se le pasa un status de creado el cual es 201

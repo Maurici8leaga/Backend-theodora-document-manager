@@ -16,6 +16,10 @@ export function uploads(
       // "upload" es un metodo de "uploader" es cual como 1er parametro se coloca el file , y el 2do son los opcion para ese file y 3er parametro un callback
       file,
       {
+        resource_type: 'auto', // OJO debe ir ya que asi cloudinary detectara automaticamente que tipo de archivo estamos subiendo
+        // DEBE IR PARA CASOS COMO SUBIR FILES, OPCIONAL SI SOLO SON IMAGENES
+        // https://cloudinary.com/documentation/upload_images#uploading_non_media_files_as_raw_files
+
         // se pasan los parametros que tendran cada archivo que se suba al cloud
         public_id, //como los nombres y los valores se llaman igual queda implicito de esta forma
         overwrite,

@@ -2,27 +2,25 @@ import Joi, { ObjectSchema } from 'joi';
 
 // aqui se define la estructuraa del esquema para el inicio de un usuario
 
-// se crea un objeto de tipo ObjectSchema
-const archiveSchema: ObjectSchema = Joi.object().keys({
+// schema para validar lo que es enviado en el body del req
+const archiveBodySchema: ObjectSchema = Joi.object().keys({
   title: Joi.string().required().min(2).max(15).messages({
-    // con "required" especificamos que debe ir este parametro
-    // messages es para colocar un mensaje si el usuario incumple uno de los parametros ya colocado anteriormente
-    // "min" es el metodo para establecer el minimo de characteres que debe tener y "max" es el tope
     'string.base': 'Title must be of type string',
-    // string.base es el tipo que debe ser ese string
-    'string.min': 'The title is too short must be at least 2 characteres',
-    // "string.min" es para que si el usuario coloca menos de lo establecido muestre este mensaje
+    'string.min': 'The title is too short, must be at least 2 characters',
+    'string.max': 'The title is too long, must be at least 15 characters',
     'string.empty': 'Title is a required field'
-    // "string.empty" es por si el usuario trata de enviar el archivo sin nombre de error
-  }),
-  document: Joi.string().required().messages({
-    'any.required': 'Document is required'
-    // usamos aca "any.required" para que el documento sea obligatorio y el tipo any, para asi englobar todo en caso de que no sea de tipo string
-  }),
-  fileType: Joi.string()
+  })
+});
+
+// schema para validar lo que es enviado en el file del req
+const archiveFileSchema: ObjectSchema = Joi.object().keys({
+  // OJO NO SE COLOCAN MUCHAS RESTRICCIONES PERSONALIZADAS YA QUE ESTO VIENE DENTRO DE FILE Y ESO EL CLIENT NO LO PUEDE CONTROLAR
+  fieldname: Joi.string().valid('document').required(),
+  originalname: Joi.string().required(),
+  encoding: Joi.string().required(),
+  mimetype: Joi.string()
+    // se quiere limitar a solo estos tipos de mimeType por eso se usa valid
     .valid(
-      // el metodo "valid" de joi se utiliza para especificar un conjunto de valores permitidos para un campo. Este método valida que el valor del campo esté presente en la lista de valores proporcionados
-      // en este caso solo estos que estan dentro
       'application/pdf',
       'text/plain',
       'application/msword',
@@ -31,8 +29,9 @@ const archiveSchema: ObjectSchema = Joi.object().keys({
     .required()
     .messages({
       'any.only': 'Invalid file type, only PDF, TXT, WORD file types are allowed.'
-      // colocamos "any.only" para asi requerir que el valor coincida con lo requerido anteriormente, de no ser asi dara error
-    })
+    }),
+  buffer: Joi.binary().required(), //buffer es un numero binario por eso se coloca este
+  size: Joi.number().required()
 });
 
-export { archiveSchema };
+export { archiveBodySchema, archiveFileSchema };
