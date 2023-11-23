@@ -17,6 +17,8 @@ export class Archive extends ArchiveUtility {
   // asi se usa el decorador de joi
   @joiValidationBody(archiveBodySchema) // joiValidation es para validar los parametros del request en el body
   @joiValidationFile(archiveFileSchema) // joiValidation es para validar los parametros del request en el file
+
+  // controller to create a file
   public async createFile(req: Request, res: Response): Promise<void> {
     const { title } = req.body;
 
@@ -70,5 +72,48 @@ export class Archive extends ArchiveUtility {
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'File created succesfully', file: fileCreated });
     //se le pasa un status de creado el cual es 201
+  }
+
+  // controller to get all files in the db
+  public async getFiles(_req: Request, res: Response): Promise<void> {
+    const files: IArchiveDocument = await archiveService.getAllFiles();
+
+    if (!files) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'There are not files yet', files: [] });
+    }
+
+    res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', files });
+    // files sera un array, como le voy a poner "files:files" lo puedo dejar como files
+  }
+
+  // controller to get file by Id
+  public async getFileById(req: Request, res: Response): Promise<void> {
+    const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
+
+    if (!file) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'There are not files yet', files: '' });
+    }
+
+    res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', file });
+  }
+
+  public async editFile(req: Request, res: Response): Promise<void> {
+    const { title } = req.body;
+
+    const verifyFile: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
+
+    if (!verifyFile) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'The file does not exist' });
+    }
+
+    const titleUppercase = Generators.firstLetterCapitalized(title);
+
+    // updating the file with new title
+    await archiveService.editFile(`${req.params.id}`, titleUppercase);
+
+    // getting the updated file
+    const fileUpdated: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'File updated successfully', file: fileUpdated });
   }
 }

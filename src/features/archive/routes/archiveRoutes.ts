@@ -13,10 +13,19 @@ class ArchiveRoutes {
   }
 
   public routes(): Router {
+    // endpoint para optener todos los files de la db
+    this.router.get('/', Archive.prototype.getFiles);
+
+    // endpoint para buscar file por id
+    this.router.get('/searchFile/:id', Archive.prototype.getFileById);
+
     // endpoint para crear un file
     this.router.post('/upload', this.upload.single('document'), Archive.prototype.createFile);
     // para subir un archivo con multer se debe colocar como middleware, "single()" y adentro como va ser referenciado ese documento
     // OJO ESTO ES PARA CASO DE SOLO SUBIR 1 ARCHIVO
+
+    // endpoint para editar un file
+    this.router.put('/editFile/:id', Archive.prototype.editFile);
 
     return this.router;
   }
