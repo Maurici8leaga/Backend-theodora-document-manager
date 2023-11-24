@@ -6,4 +6,7 @@ export interface IArchiveData {
   title: string;
   document: string;
   fileType: string;
+  public_cloudinary_id: string;
+  resource_type: string;
+  type_cloudinary: string;
 }

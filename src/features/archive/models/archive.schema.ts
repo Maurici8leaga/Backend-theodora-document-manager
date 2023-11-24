@@ -10,7 +10,12 @@ const archiveSchema: Schema = new Schema({
 
   title: { type: String, default: '' },
   document: { type: String, default: '' },
-  fileType: { type: String, default: '' }
+  fileType: { type: String, default: '' },
+  public_cloudinary_id: { type: String, default: '' },
+  resource_type: { type: String, default: '' },
+  type_cloudinary: { type: String, default: '' },
+  createAt: { type: Date, default: Date.now() }
+  // para el date, el default debe ser "Date.now()" porque si no en la db quedara como null
 });
 
 // ArchiveSchema sera el nombre de este Schema el cual sera de tipo IVideoDocument

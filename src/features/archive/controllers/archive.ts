@@ -34,10 +34,12 @@ export class Archive extends ArchiveUtility {
     // se debe convertir buffer que viene siendo el file encryptado en base64 ya que se requiere para poder enviarlo en la ruta
     // a cloudinary
 
+    const uniqueName = `${Generators.randomIdGenerator()}_${originalname}`;
+
     // upload file to cloudinary
     const cloduinaryObj: UploadApiResponse = (await uploads(
       `data:${mimetype};base64,${fileBase64}`,
-      `${originalname}` // para archivos como txt,pdf, etc se debe pasar el nombre original con su extension porque asi lo pide cloudinary
+      `${uniqueName}` // para archivos como txt,pdf, etc se debe pasar el nombre original con su extension porque asi lo pide cloudinary
       // OJO IMPORTANTE PARA SUBIR FILES COMO TXT,PDF etc. DEBE IR ESTA RUTA "data:mimeType;base64,[base64...]" YA QUE SIN ESTO
       // EL ARCHIVO NO SE VA A PODER SUBIR CORRECTAMENTE, PASANDO SOLO EL BASE64 NO LO VA A PODER GUARDAR
     )) as UploadApiResponse;
@@ -63,8 +65,13 @@ export class Archive extends ArchiveUtility {
       _id: fileID,
       title,
       document: cloduinaryObj.url,
-      fileType: mimetype
+      fileType: mimetype,
+      public_cloudinary_id: uniqueName,
+      resource_type: cloduinaryObj.resource_type,
+      type_cloudinary: cloduinaryObj.type
     });
+
+    console.log(fileData, 'es');
 
     // request a la db para crear el archivo
     const fileCreated = (await archiveService.createFile(fileData)) as unknown as IArchiveDocument;

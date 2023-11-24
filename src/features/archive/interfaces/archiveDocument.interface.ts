@@ -12,5 +12,8 @@ export interface IArchiveDocument extends Document {
   title: string;
   document: string;
   fileType: string;
-  createdAt?: Date;
+  public_cloudinary_id: string;
+  resource_type: string;
+  type_cloudinary: string;
+  createdAt: Date;
 }
