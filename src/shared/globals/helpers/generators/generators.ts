@@ -12,8 +12,13 @@ export class Generators {
       .join(' ');
   }
 
-  // metodo paraa convertir un buffer en base64
+  // metodo para convertir un buffer en base64
   static convertToBase64(buffer: Buffer): string {
     return buffer.toString('base64');
+  }
+
+  // metodo para crear un random id de 3 digitos
+  static randomIdGenerator(): number {
+    return Math.floor(Math.random() * (999 - 100) + 100);
   }
 }
