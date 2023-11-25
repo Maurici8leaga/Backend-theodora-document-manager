@@ -8,10 +8,12 @@ import { archiveService } from '@services/db/archive.service';
 import { BadRequestError } from '@helpers/errors/badRequestError';
 import { UploadApiResponse } from 'cloudinary';
 import { uploads } from '@helpers/cloudinary/cloudinaryUploads';
+import { deleteResource } from '@helpers/cloudinary/cloudinaryDelete'; //OJO
 import { ArchiveUtility } from './utilities/archive.utility';
 import HTTP_STATUS from 'http-status-codes';
 import { Generators } from '@helpers/generators/generators';
-import { config } from '@configs/configEnv';
+import { IOptionFile } from '@helpers/cloudinary/fileOptions.interface';
+import { IDeleteResponse } from '@helpers/cloudinary/deleteResponse.interface';
 
 export class Archive extends ArchiveUtility {
   // asi se usa el decorador de joi
@@ -71,8 +73,6 @@ export class Archive extends ArchiveUtility {
       type_cloudinary: cloduinaryObj.type
     });
 
-    console.log(fileData, 'es');
-
     // request a la db para crear el archivo
     const fileCreated = (await archiveService.createFile(fileData)) as unknown as IArchiveDocument;
     //  ojo se tipea tanto en entrada como en salidas de datos!!!
@@ -122,5 +122,32 @@ export class Archive extends ArchiveUtility {
     const fileUpdated: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'File updated successfully', file: fileUpdated });
+  }
+
+  public async deleteFile(req: Request, res: Response): Promise<void> {
+    const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
+
+    if (!file) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'The file does not exist' });
+    }
+
+    try {
+      // delete file from db
+      await archiveService.deleteFile(`${file._id}`);
+
+      // estas opciones en la practica son necesarias, aunque dicen ser opcionales
+      const options: IOptionFile = {
+        type: file.type_cloudinary,
+        resource_type: file.resource_type
+      };
+
+      // delete file from cloudinary
+      (await deleteResource([`${file.public_cloudinary_id}`], options)) as IDeleteResponse;
+
+      res.status(HTTP_STATUS.OK).json({ message: 'File deleted successfully' });
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestError('An error ocurred while trying to delete a file.');
+    }
   }
 }

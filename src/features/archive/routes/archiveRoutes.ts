@@ -27,6 +27,9 @@ class ArchiveRoutes {
     // endpoint para editar un file
     this.router.put('/editFile/:id', Archive.prototype.editFile);
 
+    // endpoint para eliminar un file
+    this.router.delete('/deleteFile/:id', Archive.prototype.deleteFile);
+
     return this.router;
   }
 }
