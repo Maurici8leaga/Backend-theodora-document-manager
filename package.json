@@ -8,7 +8,8 @@
     "lint:check": "eslint . --ext .ts",
     "lint:fix": "npx eslint --fix .",
     "prettier:check": "prettier --check src/**/*.ts",
-    "prettier:fix": "prettier --write src/**/*.ts"
+    "prettier:fix": "prettier --write src/**/*.ts",
+    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json"
   },
   "keywords": [],
   "author": "Mauricio Oleaga",

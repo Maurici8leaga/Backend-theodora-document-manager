@@ -98,7 +98,8 @@ export class Archive extends ArchiveUtility {
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
-      res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'There are not files yet', files: '' });
+      // res.status(HTTP_STATUS.NOT_FOUND).json({ message: 'There are not files yet', files: '' });
+      throw new BadRequestError('Error, file not found');
     }
 
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', file });
