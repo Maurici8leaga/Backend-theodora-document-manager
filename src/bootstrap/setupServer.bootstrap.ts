@@ -10,6 +10,8 @@ import cors from 'cors';
 // "cors" para comunicacion de dominios
 import compression from 'compression';
 // para comprimir a lo mas minimo la info que va y llega del server
+import 'express-async-errors'; //OJO IMPORTANTE PARA QUE EL SERVIDOR SEPA COMO MANEJAR LAS RESPUESTAS ASINCRONAS, SI NO LA APP VA CRASHEAR CUANDO HALLA UN ERROR
+// para manejar los errores asincronos
 import HTTP_STATUS from 'http-status-codes';
 // para usar los status code en los errors
 import { logger } from '@configs/configLogs';
