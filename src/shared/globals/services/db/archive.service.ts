@@ -43,8 +43,7 @@ class ArchiveService {
   }
 
   public async deleteFile(fileId: string): Promise<unknown> {
-    // CAMBIAR EL TIPEO TAMBIENN EN EL CONTROLLER
-    // public async deleteFile(fileId: string): Promise<void> {
+    // se coloca unknown para que en el controlador pueda usar lo que retorna este promise para verificacion
     const res = await ArchiveSchema.deleteOne({ _id: fileId }); // se pasa el id del archivo para eliminarlo de la coleccion
     // deleteOne es un metodo de consulta de mongoose el cual sirve para eliminar 1 solo elemento de la coleccion
 

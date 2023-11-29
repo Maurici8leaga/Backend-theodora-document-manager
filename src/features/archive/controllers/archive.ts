@@ -146,9 +146,6 @@ export class Archive extends ArchiveUtility {
       throw new NotFoundError('Error, file not found');
     }
 
-    // delete file from db
-    const deleteFromDB = await archiveService.deleteFile(`${file._id}`);
-
     // estas opciones en la practica son necesarias, aunque dicen ser opcionales
     const options: IOptionFile = {
       type: file.type_cloudinary,
@@ -159,9 +156,18 @@ export class Archive extends ArchiveUtility {
     const deleteFromCloudinary = (await deleteResource([`${file.public_cloudinary_id}`], options)) as IDeleteResponse;
     // se coloca el public_id entre [] porque espera que sea un string[]
 
+    const cloudinaryFileNotFound = Object.values(deleteFromCloudinary.deleted)[0];
+
+    if (cloudinaryFileNotFound == 'not_found') {
+      throw new NotFoundError('Error, cloudinary file not found');
+    }
+
+    // delete file from db
+    const deleteFromDB = await archiveService.deleteFile(`${file._id}`);
+
     if (!deleteFromDB || !deleteFromCloudinary) {
       throw new InternalServerError(
-        'An internal error has occurred, please try again later or contact your administrator.'
+        'An internal error has occurred, please try again later or contact the administrator.'
       );
     }
 
