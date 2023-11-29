@@ -13,25 +13,38 @@ const archiveBodySchema: ObjectSchema = Joi.object().keys({
 });
 
 // schema para validar lo que es enviado en el file del req
-const archiveFileSchema: ObjectSchema = Joi.object().keys({
-  // OJO NO SE COLOCAN MUCHAS RESTRICCIONES PERSONALIZADAS YA QUE ESTO VIENE DENTRO DE FILE Y ESO EL CLIENT NO LO PUEDE CONTROLAR
-  fieldname: Joi.string().valid('document').required(),
-  originalname: Joi.string().required(),
-  encoding: Joi.string().required(),
-  mimetype: Joi.string()
-    // se quiere limitar a solo estos tipos de mimeType por eso se usa valid
-    .valid(
-      'application/pdf',
-      'text/plain',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    )
-    .required()
-    .messages({
-      'any.only': 'Invalid file type, only PDF, TXT, WORD file types are allowed.'
+const archiveFileSchema: ObjectSchema = Joi.object()
+  .required() // se coloca required para que responda joi primero si el documento no es adjuntado
+  .label('Document file') // label solo sobre escribe el key name en mensajes de error
+  .keys({
+    // OJO NO SE COLOCAN MUCHAS RESTRICCIONES PERSONALIZADAS YA QUE ESTO VIENE DENTRO DE FILE Y ESO EL CLIENT NO LO PUEDE CONTROLAR
+    fieldname: Joi.string().valid('document').required().messages({
+      'string.only': 'Invalid fieldname, only document name is allowed.',
+      'string.empty': 'Fieldname is a required field'
     }),
-  buffer: Joi.binary().required(), //buffer es un numero binario por eso se coloca este
-  size: Joi.number().required()
-});
+    originalname: Joi.string().required().messages({
+      'string.empty': 'Original name is a required field'
+    }),
+    encoding: Joi.string().required().messages({
+      'string.empty': 'Original name is a required field'
+    }),
+    mimetype: Joi.string()
+      // se quiere limitar a solo estos tipos de mimeType por eso se usa valid
+      .valid(
+        'application/pdf',
+        'text/plain',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      )
+      .required()
+      .messages({
+        'any.only': 'Invalid file type, only PDF, TXT, WORD file types are allowed.'
+      }),
+    buffer: Joi.binary().required(), //buffer es un numero binario por eso se coloca este
+    size: Joi.number().required().messages({
+      'number.empty': 'Size is a required field'
+    })
+  })
+  .messages({ 'any.required': 'Document file is a required field' });
 
 export { archiveBodySchema, archiveFileSchema };
