@@ -16,6 +16,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { Generators } from '@helpers/generators/generators';
 import { IOptionFile } from '@helpers/cloudinary/fileOptions.interface';
 import { IDeleteResponse } from '@helpers/cloudinary/deleteResponse.interface';
+import { IDeleteArchive } from '@archive/interfaces/deleteArchive.interface';
 
 export class Archive extends ArchiveUtility {
   // asi se usa el decorador de joi
@@ -34,11 +35,11 @@ export class Archive extends ArchiveUtility {
     const { originalname, buffer, mimetype } = req.file;
     // OJO en el req.body solo llega "title"  y el "documento" llega por req.file, por eso se hace esto
 
-    const fileBase64 = Generators.convertToBase64(buffer);
+    const fileBase64: string = Generators.convertToBase64(buffer);
     // se debe convertir buffer que viene siendo el file encryptado en base64 ya que se requiere para poder enviarlo en la ruta
     // a cloudinary
 
-    const uniqueName = `${Generators.randomIdGenerator()}_${originalname}`;
+    const uniqueName: string = `${Generators.randomIdGenerator()}_${originalname}`;
 
     // upload file to cloudinary
     const cloduinaryObj: UploadApiResponse = (await uploads(
@@ -76,7 +77,7 @@ export class Archive extends ArchiveUtility {
     });
 
     // request a la db para crear el archivo
-    const fileCreated = (await archiveService.createFile(fileData)) as unknown as IArchiveDocument;
+    const fileCreated: IArchiveDocument = await archiveService.createFile(fileData);
     //  ojo se tipea tanto en entrada como en salidas de datos!!!
 
     if (!fileCreated) {
@@ -122,10 +123,10 @@ export class Archive extends ArchiveUtility {
       throw new NotFoundError('Error, file not found');
     }
 
-    const titleUppercase = Generators.firstLetterCapitalized(title);
+    const titleUppercase: string = Generators.firstLetterCapitalized(title);
 
     // updating the file with new title
-    const update = await archiveService.editFile(`${req.params.id}`, titleUppercase);
+    const update: IArchiveDocument = await archiveService.editFile(`${req.params.id}`, titleUppercase);
 
     // getting the updated file
     const fileUpdated: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
@@ -153,17 +154,20 @@ export class Archive extends ArchiveUtility {
     };
 
     // delete file from cloudinary
-    const deleteFromCloudinary = (await deleteResource([`${file.public_cloudinary_id}`], options)) as IDeleteResponse;
+    const deleteFromCloudinary: IDeleteResponse = (await deleteResource(
+      [`${file.public_cloudinary_id}`],
+      options
+    )) as IDeleteResponse;
     // se coloca el public_id entre [] porque espera que sea un string[]
 
-    const cloudinaryFileNotFound = Object.values(deleteFromCloudinary.deleted)[0];
+    const cloudinaryFileNotFound: string = Object.values(deleteFromCloudinary.deleted)[0];
 
     if (cloudinaryFileNotFound == 'not_found') {
       throw new NotFoundError('Error, cloudinary file not found');
     }
 
     // delete file from db
-    const deleteFromDB = await archiveService.deleteFile(`${file._id}`);
+    const deleteFromDB: IDeleteArchive = await archiveService.deleteFile(`${file._id}`);
 
     if (!deleteFromDB || !deleteFromCloudinary) {
       throw new InternalServerError(

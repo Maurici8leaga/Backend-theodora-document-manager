@@ -1,11 +1,13 @@
 import { ArchiveSchema } from '@archive/models/archive.schema';
 import { IArchiveDocument } from '@archive/interfaces/archiveDocument.interface';
+import { IDeleteArchive } from '@archive/interfaces/deleteArchive.interface';
 
 //aqui se implementa principio SOLID open / close y single  responsability, ya que las funcionales de esta clase pueden expanderse en variedad
 class ArchiveService {
   // funcion asincrona para crear un video, es asincrona ya que los metodo de mongoose son asincronos
   public async createFile(data: IArchiveDocument): Promise<IArchiveDocument> {
-    const createFile: IArchiveDocument = await ArchiveSchema.create(data); // el metodo "create" es de mongoose,  el permite crear un documento en la DB
+    const createFile: IArchiveDocument = (await ArchiveSchema.create(data)) as IArchiveDocument;
+    // el metodo "create" es de mongoose,  el permite crear un documento en la DB
 
     // OJO se coloca el type aca y se retorna un promis ede tipo IArchiveDocument porque a la hora de usar la funcion si no se coloca esto
     // devolvera undefined y no se quiere eso
@@ -42,9 +44,9 @@ class ArchiveService {
     return file;
   }
 
-  public async deleteFile(fileId: string): Promise<unknown> {
-    // se coloca unknown para que en el controlador pueda usar lo que retorna este promise para verificacion
-    const res = await ArchiveSchema.deleteOne({ _id: fileId }); // se pasa el id del archivo para eliminarlo de la coleccion
+  public async deleteFile(fileId: string): Promise<IDeleteArchive> {
+    // se crea IDeleteArchive ya que se necesita tipar entrada y salidad y el controllador no puede recibir void
+    const res: IDeleteArchive = (await ArchiveSchema.deleteOne({ _id: fileId })) as IDeleteArchive; // se pasa el id del archivo para eliminarlo de la coleccion
     // deleteOne es un metodo de consulta de mongoose el cual sirve para eliminar 1 solo elemento de la coleccion
 
     return res;
