@@ -12,7 +12,7 @@
     "emitDecoratorMetadata": true /* esto me permite que la definición de los decoradores persista en tiempo de ejecución */,
     "strict": true /* te permite habilitar el modo estricto para que te de sugerencias/recomendaciones de código en base al ECMMA */,
     "baseUrl": "./" /* te permite definir el path donde se creará tu carpeta de distribución con el código final */,
-    "outDir": "./cache" /* te permite darle el nombre a la carpeta de distribución */,
+    "outDir": "./build" /* te permite darle el nombre a la carpeta de distribución */,
     "forceConsistentCasingInFileNames": true /* Establece la fuerza de mayúsculas y minúsculas */,
     "allowSyntheticDefaultImports": true /* Establece el soporte de exportaciones sin nombre para que cuando yo las importe no existan problemas al darle el alias */,
     "pretty": true /* Establece es una compilación limpia y legible */,
