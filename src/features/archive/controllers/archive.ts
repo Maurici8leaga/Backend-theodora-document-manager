@@ -1,4 +1,3 @@
-// los controladores son donde va la logica de negocios
 import { ObjectId } from 'mongodb';
 import { Request, Response } from 'express';
 import { joiValidationBody, joiValidationFile } from '@decorators/joiValidation.decorators';
@@ -19,54 +18,40 @@ import { IDeleteResponse } from '@helpers/cloudinary/deleteResponse.interface';
 import { IDeleteArchive } from '@archive/interfaces/deleteArchive.interface';
 
 export class Archive extends ArchiveUtility {
-  // asi se usa el decorador de joi
-  @joiValidationBody(archiveBodySchema) // joiValidation es para validar los parametros del request en el body
-  @joiValidationFile(archiveFileSchema) // joiValidation es para validar los parametros del request en el file
+  // validation schema with joi
+  @joiValidationBody(archiveBodySchema)
+  @joiValidationFile(archiveFileSchema)
 
-  // controller to create a file
+  // Method for create a file
   public async createFile(req: Request, res: Response): Promise<void> {
     const { title } = req.body;
 
     if (!req.file) {
-      // debe ir un validador de req.file antes de ser usado ya que puede ser undefined
       throw new BadRequestError('Error uploading the file. Try again.');
     }
 
     const { originalname, buffer, mimetype } = req.file;
-    // OJO en el req.body solo llega "title"  y el "documento" llega por req.file, por eso se hace esto
 
+    // Transform buffer to base64
     const fileBase64: string = Generators.convertToBase64(buffer);
-    // se debe convertir buffer que viene siendo el file encryptado en base64 ya que se requiere para poder enviarlo en la ruta
-    // a cloudinary
 
+    // Give it a unique name
     const uniqueName: string = `${Generators.randomIdGenerator()}_${originalname}`;
 
     // upload file to cloudinary
     const cloduinaryObj: UploadApiResponse = (await uploads(
       `data:${mimetype};base64,${fileBase64}`,
-      `${uniqueName}` // para archivos como txt,pdf, etc se debe pasar el nombre original con su extension porque asi lo pide cloudinary
-      // OJO IMPORTANTE PARA SUBIR FILES COMO TXT,PDF etc. DEBE IR ESTA RUTA "data:mimeType;base64,[base64...]" YA QUE SIN ESTO
-      // EL ARCHIVO NO SE VA A PODER SUBIR CORRECTAMENTE, PASANDO SOLO EL BASE64 NO LO VA A PODER GUARDAR
+      `${uniqueName}`
     )) as UploadApiResponse;
-    // se crea una variable de tipo "UploadApiResponse" el cual es una interfaz de cloudinary
-    // se usa await ya que "uploads" devuelve un promise, esta funcion se le pasa 2 parametros,
-    // 1ro importante es el file que sera el archivo, 2do es un id ya que cada imagen debe tener un id identificador
 
     if (!cloduinaryObj?.public_id) {
-      // METODO DE VERIFICIACION IMPORTANTE de no haber un "userObjectId" mostrara un error, se coloca esto porque de ser cloduinaryObj undefined dara errorr
-      // y esto soluciona dicha condicion
       throw new BadRequestError('Error uploading the file to cloudinary. Try again.');
     }
 
-    // se crea ID para el file
+    // Give it an id to file
     const fileID: ObjectId = new ObjectId();
 
-    // la data con la estructura del archivo
     const fileData: IArchiveDocument = Archive.prototype.archiveData({
-      // se llama el metodo creado en el file "archive.utility"
-      // IMPORTANTE se debe usar este metodo "Archive.prototype.archiveData" y no con el this, ya que cuando se agregue esto en la ruta el express no reconocera el metodo con el this
-      // en cambio con prototype reconocera que es un metodo que existe de la clase abstracta ArchiveUtility
-
       _id: fileID,
       title,
       document: cloduinaryObj.url,
@@ -76,9 +61,8 @@ export class Archive extends ArchiveUtility {
       type_cloudinary: cloduinaryObj.type
     });
 
-    // request a la db para crear el archivo
+    // creating the file
     const fileCreated: IArchiveDocument = await archiveService.createFile(fileData);
-    //  ojo se tipea tanto en entrada como en salidas de datos!!!
 
     if (!fileCreated) {
       throw new InternalServerError(
@@ -87,24 +71,23 @@ export class Archive extends ArchiveUtility {
     }
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'File created succesfully', file: fileCreated });
-    //se le pasa un status de creado el cual es 201
   }
 
-  // controller to get all files in the db
+  // Method for get files from DB
   public async getFiles(_req: Request, res: Response): Promise<void> {
+    // request to get the files
     const files: IArchiveDocument = await archiveService.getAllFiles();
 
-    // SOLUCIONAR ESTA CONDICION CUANDO FILES ES 0
     if (!files) {
       throw new NotFoundError('Error, there are not files yet');
     }
 
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', files });
-    // files sera un array, como le voy a poner "files:files" lo puedo dejar como files
   }
 
-  // controller to get file by Id
+  // MEthod for get file by Id from DB
   public async getFileById(req: Request, res: Response): Promise<void> {
+    // request to get the file
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
@@ -114,15 +97,18 @@ export class Archive extends ArchiveUtility {
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', file });
   }
 
+  // MEthod for edit a file
   public async editFile(req: Request, res: Response): Promise<void> {
     const { title } = req.body;
 
+    // request to verify a file existence
     const verifyFile: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!verifyFile) {
       throw new NotFoundError('Error, file not found');
     }
 
+    // Transform the title to uppercase
     const titleUppercase: string = Generators.firstLetterCapitalized(title);
 
     // updating the file with new title
@@ -140,14 +126,16 @@ export class Archive extends ArchiveUtility {
     res.status(HTTP_STATUS.CREATED).json({ message: 'File updated successfully', file: fileUpdated });
   }
 
+  // Method for delete a file
   public async deleteFile(req: Request, res: Response): Promise<void> {
+    // request to get the file from DB
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
       throw new NotFoundError('Error, file not found');
     }
 
-    // estas opciones en la practica son necesarias, aunque dicen ser opcionales
+    // cloudinary options to search a file in the cloudinary db
     const options: IOptionFile = {
       type: file.type_cloudinary,
       resource_type: file.resource_type
@@ -158,8 +146,8 @@ export class Archive extends ArchiveUtility {
       [`${file.public_cloudinary_id}`],
       options
     )) as IDeleteResponse;
-    // se coloca el public_id entre [] porque espera que sea un string[]
 
+    // If this const is the file was not found in cloudinary
     const cloudinaryFileNotFound: string = Object.values(deleteFromCloudinary.deleted)[0];
 
     if (cloudinaryFileNotFound == 'not_found') {
