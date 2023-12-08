@@ -10,7 +10,6 @@ export default () => {
   const connect = () => {
     mongoose
       .connect(`${config.DATABASE_URL}`)
-
       .then(() => {
         log.info('Connected to Database successfully');
       })

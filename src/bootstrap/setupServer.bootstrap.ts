@@ -86,7 +86,6 @@ export class TheodoraDocumentManagerServer {
 
   private startHttpServer(httpServer: http.Server): void {
     const PORT = Number(config.SERVER_PORT);
-
     httpServer.listen(PORT, () => {
       log.info(`Server started with pid process ${process.pid}`);
 

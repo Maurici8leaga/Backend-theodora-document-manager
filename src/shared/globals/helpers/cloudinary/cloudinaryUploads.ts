@@ -1,7 +1,7 @@
 import cloudinary, { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { Ifile } from './fileResult.interface';
 
-// se crea una funcion para las configuraciones bases de cloudinary
+// Function for upload resource to cloudinaryy
 export function uploads(
   file: string,
   public_id?: string,

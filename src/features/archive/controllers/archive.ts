@@ -75,6 +75,7 @@ export class Archive extends ArchiveUtility {
 
   // Method for get files from DB
   public async getFiles(_req: Request, res: Response): Promise<void> {
+    // request to get the files
     const files: IArchiveDocument = await archiveService.getAllFiles();
 
     if (!files) {
@@ -86,6 +87,7 @@ export class Archive extends ArchiveUtility {
 
   // Method for get file by Id from DB
   public async getFileById(req: Request, res: Response): Promise<void> {
+    // request to get the file
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
