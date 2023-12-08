@@ -96,7 +96,7 @@ export class Archive extends ArchiveUtility {
 
     // SOLUCIONAR ESTA CONDICION CUANDO FILES ES 0
     if (!files) {
-      throw new NotFoundError('Error, there are not files yet');
+      throw new NotFoundError('Error, files not found');
     }
 
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', files });
@@ -116,6 +116,12 @@ export class Archive extends ArchiveUtility {
 
   public async editFile(req: Request, res: Response): Promise<void> {
     const { title } = req.body;
+
+    if (title.length === 0) {
+      throw new BadRequestError('Title empty, should have at least 2 characters');
+    } else if (title.length > 15) {
+      throw new BadRequestError('Title too long, should be up to 15 characters maximum');
+    }
 
     const verifyFile: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
@@ -144,7 +150,7 @@ export class Archive extends ArchiveUtility {
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
-      throw new NotFoundError('Error, file not found');
+      throw new NotFoundError('Error, the file cannot be deleted because it was not found');
     }
 
     // estas opciones en la practica son necesarias, aunque dicen ser opcionales
