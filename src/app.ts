@@ -4,27 +4,23 @@ import databaseConnection from '@bootstrap/setupDatabase.bootstrap';
 import { config } from '@configs/configEnv';
 
 class Application {
+  // Method for initialize server
   public initialize(): void {
-    // llamamos el metodo privado para que cuando se ejecute "initialize" este sea ejecutado
     this.loadConfig();
-    // llamamos la funcion de arranque del db
     databaseConnection();
 
-    const app: Express = express(); //aqui se le otorga a "app" los metodos de express
-
-    //se crea una instancia del class TheodoraDocumentManagerServer, para poder arrancar el server
+    const app: Express = express();
     const server: TheodoraDocumentManagerServer = new TheodoraDocumentManagerServer(app);
 
-    server.start(); //se usa el metodo start de la clase TheodoraDocumentManagerServer para iniciar los metodos
+    server.start();
   }
 
-  // este es un metodo privado para que ejecute metodos al iniciar la app
+  // Method for run env validations and cloudinary
   private loadConfig(): void {
-    config.validateConfigEnv(); //metodo para verificacion de la variables de entorno
-    config.cloudinaryConfig(); //metodo para el levantamiento de credenciales de cloudinary
+    config.validateConfigEnv();
+    config.cloudinaryConfig();
   }
 }
 
-// se debe crea la instancia del class
 const application: Application = new Application();
-application.initialize(); // hacemos llamado del metodo "initialize" para terminar de arrancar el server
+application.initialize();

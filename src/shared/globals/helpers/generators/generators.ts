@@ -1,8 +1,6 @@
-// aqui iran abstraciones de clases las cuales podran ser implementadas en otros files
-// de esta forma se mantiene un arquitectura limpia
-
+// Class for abstraction functions
 export class Generators {
-  // metodo para solo tener texto con primeras letras en mayusculaa
+  // Method for transfor a str to uppercase
   static firstLetterCapitalized(str: string): string {
     const stringCapitalized = str.toLowerCase();
 
@@ -12,12 +10,12 @@ export class Generators {
       .join(' ');
   }
 
-  // metodo para convertir un buffer en base64
+  // Method to transform a buffer to base64
   static convertToBase64(buffer: Buffer): string {
     return buffer.toString('base64');
   }
 
-  // metodo para crear un random id de 3 digitos
+  // Method to create a random ID of 3 digits
   static randomIdGenerator(): number {
     return Math.floor(Math.random() * (999 - 100) + 100);
   }

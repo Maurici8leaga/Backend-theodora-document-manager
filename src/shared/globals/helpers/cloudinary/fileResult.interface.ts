@@ -1,4 +1,4 @@
-// se crea esta interfaz para una tener una estructura definida para los archivos de cloudinary
+// Interface for cloudinary files
 export interface Ifile {
   version: string;
   public_id: string;
