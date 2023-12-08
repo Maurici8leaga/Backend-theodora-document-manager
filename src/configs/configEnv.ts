@@ -13,12 +13,13 @@ class Config {
   public CLOUD_API_SECRET: string | undefined;
   public CLOUD_DOMAIN: string | undefined;
   public BASE_PATH: string | undefined;
+  public MONGO_URI: string | undefined;
 
   constructor() {
     this.NODE_ENV = process.env.NODE_ENV;
     this.CLIENT_URL = process.env.CLIENT_URL;
     this.SERVER_PORT = process.env.SERVER_PORT;
-    this.DATABASE_URL = process.env.DATABASE_URL;
+    this.DATABASE_URL = process.env.MONGO_URI || process.env.DATABASE_URL;
     this.CLOUD_NAME = process.env.CLOUD_NAME;
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
     this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET;

@@ -79,13 +79,13 @@ export class Archive extends ArchiveUtility {
     const files: IArchiveDocument = await archiveService.getAllFiles();
 
     if (!files) {
-      throw new NotFoundError('Error, there are not files yet');
+      throw new NotFoundError('Error, files not found');
     }
 
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', files });
   }
 
-  // MEthod for get file by Id from DB
+  // Method for get file by Id from DB
   public async getFileById(req: Request, res: Response): Promise<void> {
     // request to get the file
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
@@ -97,9 +97,16 @@ export class Archive extends ArchiveUtility {
     res.status(HTTP_STATUS.OK).json({ message: 'Succesful request', file });
   }
 
-  // MEthod for edit a file
+  // Method for edit a file
   public async editFile(req: Request, res: Response): Promise<void> {
     const { title } = req.body;
+
+    // Error message if the title does not fulfill the requirements
+    if (title.length === 0) {
+      throw new BadRequestError('Title empty, should have at least 2 characters');
+    } else if (title.length > 15) {
+      throw new BadRequestError('Title too long, should be up to 15 characters maximum');
+    }
 
     // request to verify a file existence
     const verifyFile: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
@@ -132,7 +139,7 @@ export class Archive extends ArchiveUtility {
     const file: IArchiveDocument = await archiveService.getFileById(`${req.params.id}`);
 
     if (!file) {
-      throw new NotFoundError('Error, file not found');
+      throw new NotFoundError('Error, the file cannot be deleted because it was not found');
     }
 
     // cloudinary options to search a file in the cloudinary db

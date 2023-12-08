@@ -12,12 +12,14 @@ class ArchiveService {
   // Method for search a file by id
   public async getFileById(fileId: string): Promise<IArchiveDocument> {
     const file: IArchiveDocument = (await ArchiveSchema.findById({ _id: fileId })) as IArchiveDocument;
+
     return file;
   }
 
   // Method for search all files from DB
   public async getAllFiles(): Promise<IArchiveDocument> {
     const files: IArchiveDocument = (await ArchiveSchema.find()) as unknown as IArchiveDocument;
+
     return files;
   }
 
@@ -34,6 +36,7 @@ class ArchiveService {
   // Method for delete a file
   public async deleteFile(fileId: string): Promise<IDeleteArchive> {
     const res: IDeleteArchive = (await ArchiveSchema.deleteOne({ _id: fileId })) as IDeleteArchive;
+
     return res;
   }
 }
