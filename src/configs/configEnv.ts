@@ -23,7 +23,8 @@ class Config {
     this.NODE_ENV = process.env.NODE_ENV;
     // "process.env" es la que permite poder apuntar a esta variable
     this.CLIENT_URL = process.env.CLIENT_URL;
-    this.SERVER_PORT = process.env.SERVER_PORT;
+    // de esta forma podemos poner dinamicamente el valor del puerto segun su entorno
+    this.SERVER_PORT = process.env.NODE_ENV === 'development' ? '5001' : '80';
     this.DATABASE_URL = process.env.DATABASE_URL;
     this.CLOUD_NAME = process.env.CLOUD_NAME;
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
