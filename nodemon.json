@@ -8,9 +8,6 @@
   "events": {
     "restart": "yarn run lint:check"
   },
-  "env": {
-    "NODE_ENV": "development"
-  },
   "verbose": true,
   "restartable": "rs"
 }
