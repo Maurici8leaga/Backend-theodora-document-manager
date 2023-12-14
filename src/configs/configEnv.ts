@@ -18,7 +18,7 @@ class Config {
   constructor() {
     this.NODE_ENV = process.env.NODE_ENV;
     this.CLIENT_URL = process.env.CLIENT_URL;
-    this.SERVER_PORT = process.env.NODE_ENV === 'development' ? '5001' : '80';
+    this.SERVER_PORT = process.env.NODE_ENV === 'production' ? '10000' : '5001';
     this.DATABASE_URL = process.env.MONGO_URI || process.env.DATABASE_URL;
     this.CLOUD_NAME = process.env.CLOUD_NAME;
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
