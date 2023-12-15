@@ -54,7 +54,7 @@ export class Archive extends ArchiveUtility {
     const fileData: IArchiveDocument = Archive.prototype.archiveData({
       _id: fileID,
       title,
-      document: cloduinaryObj.url,
+      document: cloduinaryObj.secure_url,
       fileType: mimetype,
       public_cloudinary_id: uniqueName,
       resource_type: cloduinaryObj.resource_type,
